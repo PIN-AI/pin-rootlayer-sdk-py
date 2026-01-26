@@ -112,7 +112,7 @@ class RootLayerClient:
         if req_model.signature is None:
             signer = self._require_signer()
             if req_model.requester is None:
-                req_model.requester = signer.address  # type: ignore[misc]
+                req_model.requester = signer.address
 
             chain = self._chain_for(req_model.settle_chain)
 
@@ -129,7 +129,7 @@ class RootLayerClient:
                 intent_manager=chain.intent_manager_address,
                 chain_id=chain.chain_id,
             )
-            req_model.signature = signer.sign_message_32(digest)  # type: ignore[misc]
+            req_model.signature = signer.sign_message_32(digest)
 
         body = req_model.model_dump(mode="json", by_alias=True, exclude_none=True)
         data = self._request_json("POST", "/api/v1/intents/submit", json_body=body)
@@ -152,7 +152,7 @@ class RootLayerClient:
                 if item.signature is not None:
                     continue
                 if item.requester is None:
-                    item.requester = signer.address  # type: ignore[misc]
+                    item.requester = signer.address
                 chain = self._chain_for(item.settle_chain)
                 ph = params_hash(item.params.intent_raw, item.params.metadata or b"")
                 digest = intent_digest(
@@ -167,7 +167,7 @@ class RootLayerClient:
                     intent_manager=chain.intent_manager_address,
                     chain_id=chain.chain_id,
                 )
-                item.signature = signer.sign_message_32(digest)  # type: ignore[misc]
+                item.signature = signer.sign_message_32(digest)
 
         body = req_model.model_dump(mode="json", by_alias=True, exclude_none=True)
         data = self._request_json("POST", "/api/v1/intents/submit/batch", json_body=body)
@@ -218,7 +218,7 @@ class RootLayerClient:
         if req_model.signature is None:
             signer = self._require_signer()
             if req_model.requester is None:
-                req_model.requester = signer.address  # type: ignore[misc]
+                req_model.requester = signer.address
             chain = self._chain_for(req_model.settle_chain)
             ph = params_hash(req_model.params.intent_raw, req_model.params.metadata or b"")
             digest = direct_intent_digest(
@@ -234,7 +234,7 @@ class RootLayerClient:
                 intent_manager=chain.intent_manager_address,
                 chain_id=chain.chain_id,
             )
-            req_model.signature = signer.sign_message_32(digest)  # type: ignore[misc]
+            req_model.signature = signer.sign_message_32(digest)
 
         body = req_model.model_dump(mode="json", by_alias=True, exclude_none=True)
         data = self._request_json("POST", "/v1/direct/intents", json_body=body)

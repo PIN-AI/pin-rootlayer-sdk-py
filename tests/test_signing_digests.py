@@ -4,6 +4,8 @@ from eth_utils import keccak, to_bytes
 
 from pin_rootlayer_sdk.signer import PrivateKeySigner
 from pin_rootlayer_sdk.signing import (
+    AGENT_CONNECT_TYPEHASH,
+    AGENT_CONNECT_TYPEHASH_DEF,
     ASSIGNMENT_TYPEHASH,
     ASSIGNMENT_TYPEHASH_DEF,
     DIRECT_INTENT_TYPEHASH,
@@ -14,6 +16,7 @@ from pin_rootlayer_sdk.signing import (
     VALIDATION_BATCH_TYPEHASH_DEF,
     VALIDATION_TYPEHASH,
     VALIDATION_TYPEHASH_DEF,
+    agent_connect_digest,
     assignment_digest,
     direct_intent_digest,
     intent_digest,
@@ -45,6 +48,7 @@ def test_typehashes_match_keccak_text() -> None:
     assert VALIDATION_TYPEHASH == keccak(text=VALIDATION_TYPEHASH_DEF)
     assert VALIDATION_BATCH_TYPEHASH == keccak(text=VALIDATION_BATCH_TYPEHASH_DEF)
     assert DIRECT_INTENT_TYPEHASH == keccak(text=DIRECT_INTENT_TYPEHASH_DEF)
+    assert AGENT_CONNECT_TYPEHASH == keccak(text=AGENT_CONNECT_TYPEHASH_DEF)
 
 
 def test_intent_digest_manual_equivalence_and_signature_recovery() -> None:
@@ -261,3 +265,37 @@ def test_direct_intent_digest_manual_equivalence() -> None:
         )
     )
     assert d1 == manual
+
+
+def test_agent_connect_digest_manual_equivalence_and_signature_recovery() -> None:
+    signer = PrivateKeySigner(
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    )
+
+    nonce = b"\x11" * 32
+    ts = 1730000000
+    agent_id = 123
+
+    d1 = agent_connect_digest(
+        agent_address=signer.address,
+        timestamp=ts,
+        random_nonce=nonce,
+        agent_id=agent_id,
+    )
+
+    typehash = keccak(text=AGENT_CONNECT_TYPEHASH_DEF)
+    manual = keccak(
+        b"".join(
+            [
+                typehash,
+                _addr32(signer.address),
+                _u256(ts),
+                nonce,
+                _u256(agent_id),
+            ]
+        )
+    )
+    assert d1 == manual
+
+    sig = signer.sign_message_32(d1)
+    assert recover_address(d1, sig).lower() == signer.address.lower()

@@ -19,6 +19,7 @@ from .models import (
     SubmitIntentRequest,
     SubmitIntentResponse,
 )
+from .rootlayer_agent import AgentSession, RootLayerAgentClient
 from .signer import EthAccountSigner, PrivateKeySigner, Signer
 
 __all__ = [
@@ -36,6 +37,7 @@ __all__ = [
     "Intent",
     "IntentParams",
     "PrivateKeySigner",
+    "RootLayerAgentClient",
     "RootLayerClient",
     "Signer",
     "SubmitDirectIntentRequest",
@@ -44,4 +46,5 @@ __all__ = [
     "SubmitIntentBatchResponse",
     "SubmitIntentRequest",
     "SubmitIntentResponse",
+    "AgentSession",
 ]

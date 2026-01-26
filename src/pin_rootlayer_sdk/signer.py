@@ -4,7 +4,7 @@ from typing import Protocol, runtime_checkable
 
 from eth_account import Account
 from eth_account.messages import encode_defunct
-from eth_utils import to_checksum_address
+from eth_utils import to_checksum_address  # type: ignore[attr-defined]
 
 from .exceptions import SigningError
 

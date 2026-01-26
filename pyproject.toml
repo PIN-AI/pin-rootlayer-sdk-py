@@ -18,6 +18,8 @@ dependencies = [
   "eth-abi>=4,<6",
   "eth-utils>=2,<6",
   "hexbytes>=0.3,<1",
+  "grpcio>=1.60,<2",
+  "protobuf>=5.29.3,<6",
   "typing-extensions>=4.7; python_version < '3.11'",
 ]
 
@@ -35,6 +37,9 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+pin_rootlayer_sdk = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
@@ -46,6 +51,7 @@ markers = [
 [tool.ruff]
 line-length = 100
 target-version = "py39"
+extend-exclude = ["src/pin_rootlayer_sdk/_proto/**"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

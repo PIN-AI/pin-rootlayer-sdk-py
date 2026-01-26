@@ -4,6 +4,7 @@ Python SDK for PIN RootLayer:
 
 - Generate signatures compatible with current RootLayer/IntentManager verification (**EIP-191 / `signMessage` over `keccak256(abi.encode(...))`**)
 - Call RootLayer HTTP endpoints (sync + async)
+- Agent Direct Mode runtime (gRPC): `AgentConnect` stream + `Heartbeat` + `SubmitDirectResult`
 - Accept `bytes` fields as `bytes`, base64 string, or `0x` hex string
 
 ## Install
@@ -61,6 +62,33 @@ resp = client.submit_direct_intent(
 )
 
 print(resp.ok, resp.intent_id, resp.status)
+
+## Agent Direct Mode (gRPC): AgentConnect V2 + heartbeat
+
+```python
+from pin_rootlayer_sdk import PrivateKeySigner
+from pin_rootlayer_sdk.rootlayer_agent import RootLayerAgentClient
+
+signer = PrivateKeySigner("0x...your_private_key...")
+
+# gRPC target (host:port), e.g. "127.0.0.1:9000"
+with RootLayerAgentClient("127.0.0.1:9000", signer=signer) as client:
+    session = client.agent_connect(agent_id="1", client_version="my-agent/0.1.0")
+    session.start_heartbeat(interval_s=10)
+
+    while True:
+        push = session.recv()  # blocks
+
+        # TODO: execute the task in push.params / push.intent_type
+        result = b"ok"
+
+        session.submit_direct_result_from_push(
+            push,
+            result_data=result,
+            success=True,
+            error_message="",
+        )
+```
 ```
 
 ## Standard (auction) intent

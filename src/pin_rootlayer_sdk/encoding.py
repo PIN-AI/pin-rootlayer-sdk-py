@@ -7,7 +7,13 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
-from eth_utils import is_checksum_address, is_hex, keccak, to_bytes, to_checksum_address
+from eth_utils import (  # type: ignore[attr-defined]
+    is_checksum_address,
+    is_hex,
+    keccak,
+    to_bytes,
+    to_checksum_address,
+)
 from hexbytes import HexBytes
 
 from .exceptions import SigningError
@@ -166,7 +172,7 @@ def enum_to_int(v: Any) -> int:
     if isinstance(v, int):
         return v
     try:
-        val = v.value  # type: ignore[no-any-return]
+        val = v.value
     except AttributeError:
         val = None
     if isinstance(val, int):

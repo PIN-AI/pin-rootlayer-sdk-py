@@ -3,10 +3,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from eth_abi import encode
+from eth_abi import encode  # type: ignore[attr-defined]
 from eth_account import Account
 from eth_account.messages import encode_defunct
-from eth_utils import keccak, to_checksum_address
+from eth_utils import keccak, to_checksum_address  # type: ignore[attr-defined]
 
 from .encoding import (
     as_abi_address,
@@ -34,12 +34,14 @@ VALIDATION_BATCH_TYPEHASH_DEF = (
 DIRECT_INTENT_TYPEHASH_DEF = (
     "PIN_DIRECT_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,address,uint256)"
 )
+AGENT_CONNECT_TYPEHASH_DEF = "PIN_AGENT_CONNECT_V2(address,uint256,bytes32,uint256)"
 
 INTENT_TYPEHASH = keccak_text(INTENT_TYPEHASH_DEF)
 ASSIGNMENT_TYPEHASH = keccak_text(ASSIGNMENT_TYPEHASH_DEF)
 VALIDATION_TYPEHASH = keccak_text(VALIDATION_TYPEHASH_DEF)
 VALIDATION_BATCH_TYPEHASH = keccak_text(VALIDATION_BATCH_TYPEHASH_DEF)
 DIRECT_INTENT_TYPEHASH = keccak_text(DIRECT_INTENT_TYPEHASH_DEF)
+AGENT_CONNECT_TYPEHASH = keccak_text(AGENT_CONNECT_TYPEHASH_DEF)
 
 
 def params_hash(intent_raw: bytes | str, metadata: bytes | str = b"") -> bytes:
@@ -313,6 +315,32 @@ def direct_intent_digest(
 
 def sign_direct_intent(signer: Signer, **kwargs: object) -> bytes:
     d = direct_intent_digest(**kwargs)  # type: ignore[arg-type]
+    return signer.sign_message_32(d)
+
+
+def agent_connect_digest(
+    *,
+    agent_address: str,
+    timestamp: int,
+    random_nonce: bytes | str,
+    agent_id: int | str,
+) -> bytes:
+    nonce32 = parse_bytes32(random_nonce)
+    encoded = encode(
+        ["bytes32", "address", "uint256", "bytes32", "uint256"],
+        [
+            as_abi_bytes32(AGENT_CONNECT_TYPEHASH),
+            as_abi_address(agent_address),
+            as_abi_uint256(timestamp),
+            as_abi_bytes32(nonce32),
+            as_abi_uint256(agent_id),
+        ],
+    )
+    return keccak(encoded)
+
+
+def sign_agent_connect(signer: Signer, **kwargs: object) -> bytes:
+    d = agent_connect_digest(**kwargs)  # type: ignore[arg-type]
     return signer.sign_message_32(d)
 
 
